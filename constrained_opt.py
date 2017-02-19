@@ -1,3 +1,4 @@
+from __future__ import print_function
 from time import time
 from lib.rng import np_rng
 import numpy as np
@@ -51,7 +52,7 @@ class Constrained_OPT(QThread):
         if self.z_seq is not None and image_id >= 0:
             image_id = image_id % self.z_seq.shape[0]
             frame_id = frame_id % self.z_seq.shape[1]
-            
+            print('set z as image %d, frame %d' % (image_id, frame_id))
             self.prev_z = self.z_seq[image_id, frame_id]
 
         if self.prev_z is None:  #random initialization
@@ -97,7 +98,7 @@ class Constrained_OPT(QThread):
 
     def combine_constraints(self, constraints):
         if constraints is not None: #[hack]
-            # 
+            # print('combine strokes')
             [im_c, mask_c, im_e, mask_e] = constraints
             if self.prev_im_c is None:
                 mask_c_f = mask_c
@@ -204,7 +205,7 @@ class Constrained_OPT(QThread):
                 self.iter_count += 1
 
             t_c = int(1000*(time()-t1))
-            
+            print('update one iteration: %03d ms' % t_c, end='\r')
             sys.stdout.flush()
             if t_c < time_to_wait:
                 self.msleep(time_to_wait-t_c)
@@ -254,7 +255,7 @@ class Constrained_OPT(QThread):
             z_seq.append(z_t[:,np.newaxis,...])
         self.img_seq = np.concatenate(img_seq, axis=1)
         self.z_seq = np.concatenate(z_seq, axis=1)
-        
+        print('generate morphing sequence (%.3f seconds)' % (time()-t))
 
     def reset(self):
         self.prev_z = self.z0
